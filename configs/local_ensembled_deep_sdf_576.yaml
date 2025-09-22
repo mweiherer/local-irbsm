@@ -1,0 +1,68 @@
+module: 'local_ensembled_deep_sdf'
+
+model:
+   local_ensembled_deep_sdf:
+      input_dim: 3
+      output_dim: 1
+      global_latent_dim: 128
+      local_latent_dim: 64
+      hidden_dim : 200
+      num_layers: 4
+      blending:
+         sigma: 0.25
+         const: 0.2
+      anchor_indices: [0, 1, 2, 3, 4, 5] # 0: sternal notch, 1: belly button, 2: left nipple, 3: right nipple, 4: left coracoid process, 5: right coracoid process.
+   anchor_mlp:
+      hidden_dim: 256
+
+data:
+   dataset: 'breast'
+   dataset_root: './data/'
+   num_volume_points: 500
+   num_surface_points: 500
+   average_anchors: './artifacts/average_anchors.pt'
+  
+train:
+   batch_size: 16
+   epochs_til_evaluation: 100
+   num_workers: 4
+
+eval:
+   chunk_size: 100_000
+   voxel_resolution: 128
+   num_eval_points: 100_000
+
+loss:
+   objectives: ['surface_loss', 'normal_loss', 'eikonal_loss', 'volume_loss', 'latent_norm', 'anchor_loss']
+   weights: [2.0, 0.3, 0.1, 0.01, 0.01, 7.5]
+   kwargs: {
+      alpha: 10.0
+   }
+
+optimizer:
+   method: 'adam_w'
+   lr: 5.0e-4
+   optimizer_kwargs: { 
+      'weight_decay': 0.01
+   }
+   lr_scheduler: 'step_lr'
+   scheduler_kwargs: { 
+      'step_size': 3000,  
+      'gamma': 0.5
+   }
+
+latent_optimizer:
+   method: 'adam_w'
+   lr: 1.0e-3
+   lr_scheduler: 'step_lr'
+   scheduler_kwargs: { 
+      'step_size': 3000,  
+      'gamma': 0.5
+   }
+
+misc:
+   dtype: 'float32'
+   sparse_embedding: True
+   latent_init: 1.0e-4
+   gradient_clip: 0.1 # Set to -1 if you don't want to use gradient clipping.
+   manual_seed: 41
