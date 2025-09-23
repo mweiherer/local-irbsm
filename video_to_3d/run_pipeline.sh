@@ -1,4 +1,4 @@
-#!/bin/bash -l
+# Script to execute 3D reconstruction pipeline.
 
 
 filename=$(basename -- "$1")
