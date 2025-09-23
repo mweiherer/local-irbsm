@@ -73,7 +73,7 @@ Optional arguments:
 If you want a metrical (real-world scale) reconstruction, add `--metrical`.
 
 #### Providing Landmarks 
-Whenever the orientation of the given point cloud differes significantly from the model's orientation, you should first *roughly* align both coordinate systems (this is necessary because our model is not invariant to rigid transformations).
+Whenever the orientation of the given point cloud differs significantly from the model's orientation, you should first *roughly* align both coordinate systems (this is necessary because our model is not invariant to rigid transformations).
 The easiest way to achieve this is by providing certain landmark positions. 
 These points can then be used to rigidly align the given point cloud to the model.
 Please provide the following landmarks in *exactly* this order:
@@ -85,7 +85,7 @@ Please provide the following landmarks in *exactly* this order:
 6. Right coracoid process (from the patient's perspective; so it's actually *left* from your perspective!)
 
 We recommend using [MeshLab](https://www.meshlab.net)'s PickPoints (PP) tool, which allows you to export selected point positions as XML file with `.pp` extension. 
-You can directly pass this file into `reconstruct.py`.
+You can directly pass this file to `reconstruct.py`.
 Alternatively, you can use your favorite point picker tool and pass points as comma-separated `.csv` file.
 Lastly, we also provide a simple application to interactively select points, just run
 ```
@@ -103,6 +103,8 @@ source scripts/setup_vggsfm.sh
 ```
 This downloads the official GitHub repository into the `./extern` folder and installs all its dependencies.
 
+**If you have a GPU with less than 32 GB of VRAM you'd need to adapt the following two hardcoded hyperparameters to avoid an out-of-memory error while running VGGSfM: `max_points_num` in predict_tracks and `max_tri_points_num` in triangulate_tracks. Please see [here](https://github.com/facebookresearch/vggsfm?tab=readme-ov-file#10-faqs) for more information.**
+
 ### Running the Pipeline
 To run our pipeline using default parameters, simply type:
 ```
@@ -111,12 +113,12 @@ sh video_to_3d/run_pipeline.sh <path-to-video>
 This will automatically (1) extract 30 frames from the input video, (2) run SfM on the extracted frames, (3) opens a window which prompts you to pick the six landmarks in a single image, (4) aligns the SfM-generated point cloud to our model's mean shape and prunes away points in the background, and finally (5) reconstructs a metrically correct surface mesh by fitting our model to the aligned and pruned point cloud.
 The whole pipeline runs in about six minutes on a single NVIDIA RTX A5000 with 20 GB of VRAM. 
 
-Important mouse and key controlls for interactive landmark selection: 
+Important mouse and key controls for interactive landmark selection: 
 
 Left click to add a new landmark. Right click to delete last added landmark. Press `Enter` to save and continue. Hit `q` or `ESC` to quit without saving (this will exit the whole pipeline!). Edit a selected landmark position by hovering over the landmark and drag and drop to desired position.
 
 #### Step-by-Step Execution
-If you prefer to run our pipeline step-by-step with full controll over its parameters, follow the instructions below.
+If you prefer to run our pipeline step-by-step with full control over its parameters, follow the instructions below.
 
 <details>
 <summary>Click to expand</summary>
@@ -127,7 +129,7 @@ First, extract frames using
 python video_to_3d/extract_frames.py <path-to-video> <base-output-dir>
 ```
 This extracts 30 frames into `<base-output-dir>/images` according to the selection strategy explained in the paper.
-If you want to extract frames uniformily in time regardless of image quality, add `--uniform`.
+If you want to extract frames uniformly in time regardless of image quality, add `--uniform`.
 If you want to extract an arbitrary number of images, set `--num_frames` accordingly.
 
 ##### 2. Run SfM
@@ -140,7 +142,7 @@ Depending on the available hardware, this may take a while (around six minutes f
 Optional arguments (to VGGSfM, see also [here](https://github.com/facebookresearch/vggsfm)):
 - `--camera_type`: Camera model. Can be either `SIMPLE_PINHOLE` or `SIMPLE_RADIAL`. Default: `SIMPLE_RADIAL`.
 - `--shared_camera`: Set this flag if you want to use shared camera intrinsics across all images. Usually valid for images extracted from a video. Default: `True`.
-- `--query_method`: Query point method. Choose `sp`, `sift`, `aliked`, or any combinations of it, like `sp+sift`. Default: `sp+sift+aliked`.
+- `--query_method`: Query point method. Choose `sp`, `sift`, `aliked`, or any combination of them, like `sp+sift`. Default: `sp+sift+aliked`.
 - `--query_frame_num`: Number of query frames. Default: `3`.
 - `--max_query_pts`: Maximum number of query points per frame. Default: `8_192`.
 - `--num_ba_iterations`: Number of bundle adjustment (BA) iterations: Default: `3`.
@@ -159,12 +161,12 @@ Select the following six landmarks in a frontal-facing image in *exactly* this o
 
 To do so, you can either employ your favorite 2D landmarking tool or use our supplied 2D Landmark Picker by running
 ```
-python video_to_3d/pick_2d_landmarks.py <base-output-dir>
+python video_to_3d/pick_2d_landmarks.py <base-output-dir>/images
 ```
 which will automatically select a frontal-facing image and prompts you to annotate the six landmarks.
 
 If you use a custom landmarking tool, make sure to follow the following convention for the landmarks file.
-The file is required be a text file that contains the comma-separated pixel coodinates of the selected landmarks, one row for each landmark position:
+The file is required to be a text file that contains the comma-separated pixel coordinates of the selected landmarks, one row for each landmark position:
 ```
 x_1,y_1
 x_2,y_2
