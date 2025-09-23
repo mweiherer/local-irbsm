@@ -10,7 +10,7 @@ $^3$ University Hospital Regensburg
 Official implementation of the paper "Learning Neural Parametric 3D Breast Shape Models for Metrical Surface Reconstruction From Monocular RGB Videos".
 
 This repository contains code for the local implicit Regensburg Breast Shape Model (liRBSM).
-Along with the inference code (sampling from our model and reconstructing point clouds) and code that has been used to train our model, we also fully open source the proposed 3D breast surface reconstruction pipeline.
+Along with the inference code (sampling from our model and reconstructing point clouds) and code that has been used to train our model, we also fully open-source the proposed 3D breast surface reconstruction pipeline.
 
 **We also provide an easy-to-use graphical user interface for our 3D reconstruction pipeline that runs on all common operating systems and (optionally) without a graphics card. Download it here!**
 
@@ -103,7 +103,7 @@ source scripts/setup_vggsfm.sh
 ```
 This downloads the official GitHub repository into the `./extern` folder and installs all its dependencies.
 
-**If you have a GPU with less than 32 GB of VRAM you'd need to adapt the following two hardcoded hyperparameters to avoid an out-of-memory error while running VGGSfM: `max_points_num` in predict_tracks and `max_tri_points_num` in triangulate_tracks. Please see [here](https://github.com/facebookresearch/vggsfm?tab=readme-ov-file#10-faqs) for more information.**
+**If your GPU has less than 32 GB of VRAM you'd need to adapt the following two hardcoded hyperparameters to avoid an out-of-memory error while running VGGSfM: `max_points_num = 163840` in predict_tracks and `max_tri_points_num = 819200` in triangulate_tracks. Please see [here](https://github.com/facebookresearch/vggsfm?tab=readme-ov-file#10-faqs) for more information.**
 
 ### Running the Pipeline
 To run our pipeline using default parameters, simply type:
