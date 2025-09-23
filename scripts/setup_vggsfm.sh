@@ -1,7 +1,7 @@
 # Small script to download and install VGGSfM.
 
 
-cd extern
+mkdir extern && cd extern
 
 git clone https://github.com/facebookresearch/vggsfm.git
 cd vggsfm
