@@ -9,7 +9,7 @@ cd vggsfm
 source install.sh
 python -m pip install -e .
 
+cd ../..
+
 conda deactivate 
 conda activate local-irbsm
-
-cd ../..
