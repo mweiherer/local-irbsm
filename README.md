@@ -99,7 +99,7 @@ Please also see the README file in `./scripts`.
 Our reconstruction pipeline heavily relies on [VGGSfM](https://vggsfm.github.io), a state-of-the-art differentiable Structure-from-Motion pipeline.
 To set it up, run
 ```
-sh scripts/setup_vggsfm.sh
+source scripts/setup_vggsfm.sh
 ```
 This downloads the official GitHub repository into the `./extern` folder and installs all its dependencies.
 
