@@ -113,7 +113,7 @@ To run our pipeline using default parameters, simply type:
 sh video_to_3d/run_pipeline.sh <path-to-video>
 ```
 This will automatically (1) extract 30 frames from the input video, (2) run SfM on the extracted frames, (3) opens a window which prompts you to pick the six landmarks in a single image, (4) aligns the SfM-generated point cloud to our model's mean shape and prunes away points in the background, and finally (5) reconstructs a metrically correct surface mesh by fitting our model to the aligned and pruned point cloud.
-The whole pipeline runs in about six minutes on a single NVIDIA RTX A5000 with 20 GB of VRAM. 
+The whole pipeline runs in about six minutes on a single NVIDIA RTX A4000 with 20 GB of VRAM. 
 
 Important mouse and key controls for interactive landmark selection: 
 
@@ -139,7 +139,7 @@ Next, run SfM on the extracted frames by typing
 ```
 python video_to_3d/run_sfm.py <base-output-dir>
 ```
-Depending on the available hardware, this may take a while (around six minutes for 30 frames on a single NVIDIA RTX A5000 with 20 GB of VRAM).
+Depending on the available hardware, this may take a while (around six minutes for 30 frames on a single NVIDIA RTX A4000 with 20 GB of VRAM).
 
 Optional arguments (to VGGSfM, see also [here](https://github.com/facebookresearch/vggsfm)):
 - `--camera_type`: Camera model. Can be either `SIMPLE_PINHOLE` or `SIMPLE_RADIAL`. Default: `SIMPLE_RADIAL`.
