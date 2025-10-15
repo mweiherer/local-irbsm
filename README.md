@@ -12,7 +12,7 @@ Official implementation of the paper "Learning Neural Parametric 3D Breast Shape
 This repository contains code for the local implicit Regensburg Breast Shape Model (liRBSM).
 Along with the inference code (sampling from our model and reconstructing point clouds) and code that has been used to train our model, we also fully open-source the proposed 3D breast surface reconstruction pipeline.
 
-**We also provide an easy-to-use graphical user interface for our 3D reconstruction pipeline that runs on all common operating systems and (optionally) without a graphics card. Download it here!**
+**We also provide an easy-to-use graphical user interface for our 3D reconstruction pipeline that runs on macOS and Windows and (optionally) without a graphics card. Download it [here](https://rbsm.re-mic.de/local-implicit/)!**
 
 Abstract:
 *We present a neural parametric 3D breast shape model and, based on this model, introduce a low-cost and accessible 3D surface reconstruction pipeline capable of recovering accurate breast geometry from a monocular RGB video. In contrast to widely used, commercially available yet prohibitively expensive 3D breast scanning solutions and existing low-cost alternatives, our method requires neither specialized hardware nor proprietary software and can be used with any device that is able to record RGB videos. The key building blocks of our pipeline are a state-of-the-art, off-the-shelf Structure-from-motion pipeline, paired with a parametric breast model for robust and metrically correct surface reconstruction. Our model, similarly to the recently proposed implicit Regensburg Breast Shape Model (iRBSM), leverages implicit neural representations to model breast shapes. However, unlike the iRBSM, which employs a single global neural signed distance function (SDF), our approach---inspired by recent state-of-the-art face models---decomposes the implicit breast domain into multiple smaller regions, each represented by a local neural SDF anchored at anatomical landmark positions. When incorporated into our surface reconstruction pipeline, the proposed model, dubbed liRBSM (short for localized iRBSM), significantly outperforms the iRBSM in terms of reconstruction quality, yielding more detailed surface reconstruction than its global counterpart. Overall, we find that the introduced pipeline is able to recover high-quality 3D breast geometry within an error margin of less than 2 mm. Our method is fast (requires less than six minutes), fully transparent and open-source, and---together with the model---publicly available.*
@@ -219,11 +219,12 @@ After preprocessing, make sure to place the resulting `.hdf5` file(s) in the `./
 Secondly, our model's architecture requires average anchor positions, computed as mean landmark positions over the dataset.
 You can do so by calling
 ```
-python scripts/compute_average_anchors.py <path-to-your-scans>/landmarks
+python scripts/compute_average_anchors.py data/dataset.hdf5
 ```
+Place the resulting file in the `./artifacts` folder.
 
 ### Train the Model
-To train the model, type
+Finally, to train the model, type
 ```
 python train.py configs/local_ensembled_deep_sdf_576.yaml
 ```
