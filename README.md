@@ -198,11 +198,31 @@ See above.
 </details>
 
 ## Training Our Model on Your Own Data
-TODO
+To train our model on your own data, you'd need a dataset of watertight 3D breast scans with corresponding landmarks (the same as described above), clicked on each scan.
+We recommend using the supplied landmarking tool to select landmarks on meshes; see the `./scripts` folder for further information.
+Once selected, please save landmark files under `<path-to-your-scans>/landmarks`.
 
-To train our model on your own watertight 3D breast scans, you first need to bring your data into the file format we're using (we're expecting training data to be stored in `.hdf5` files). 
-Please follow the instructions in the iRBSM repository here.
+### Preprocess Your Data
+First, you need to bring your data into the file format we're using (we're expecting training data to be stored in `.hdf5` files). 
+The following script does that for you; it first scales raw meshes into the unit cube, and then optionally discards inner structures. 
+Finally, it produces a ready-to-use `.hdf5` file that you can later plug into our training pipeline.
+Simply type
+```
+python scripts/preprocess_dataset.py <path-to-your-scans>
+```
+Optional arguments:
+- `--output`: The name of the output `.hdf5` file. Default: `./dataset.hdf5`.
+- `--padding`: The padding to add to the unit cube. Default: `0.1`.
+
 After preprocessing, make sure to place the resulting `.hdf5` file(s) in the `./data` folder.
+
+Secondly, our model's architecture requires average anchor positions, computed as mean landmark positions over the dataset.
+You can do so by calling
+```
+python scripts/compute_average_anchors.py <path-to-your-scans>/landmarks
+```
+
+### Train the Model
 To train the model, type
 ```
 python train.py configs/local_ensembled_deep_sdf_576.yaml
