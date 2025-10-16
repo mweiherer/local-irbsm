@@ -2,7 +2,7 @@
 
 ![Teaser figure](teaser.png)
 
-**[Paper]() | [Project page](https://rbsm.re-mic.de/local-implicit/)** 
+**[Paper](https://arxiv.org/abs/2510.13540) | [Project page](https://rbsm.re-mic.de/local-implicit/)** 
 
 [Maximilian Weiherer](https://mweiherer.github.io)$^{1,2}$, [Antonia von Riedheim]()$^3$, [Vanessa Brébant](https://www.linkedin.com/in/vanessa-brebant-0a391843/)$^3$, [Bernhard Egger](https://eggerbernhard.ch)$^{1*}$, [Christoph Palm](https://re-mic.de/en/head/)$^{2*}$\
 $^1$ Friedrich-Alexander-Universität Erlangen-Nürnberg\
@@ -241,7 +241,7 @@ If you use the liRBSM or our 3D surface reconstruction pipeline, please cite
     title={Learning Neural Parametric 3D Breast Shape Models for Metrical Surface Reconstruction From Monocular RGB Videos},
     author={Weiherer, Maximilian and von Riedheim, Antonia and Brébant, Vanessa and Egger, Bernhard and Palm, Christoph},
     archivePrefix={arXiv},
-    eprint={},
+    eprint={2510.13540},
     year={2025}
 }
 ```
