@@ -78,6 +78,7 @@ def main(args):
     aligned_point_cloud_pruned = aligned_point_cloud[distances < args.pruning_dist_threshold]
     e = time.time()
     
+    pcu.save_mesh_v(os.path.join(args.input_base_path, 'landmarks_3d.ply'), landmarks_3d.numpy())
     pcu.save_mesh_v(os.path.join(args.input_base_path, 'aligned_landmarks_3d.ply'), aligned_landmarks_3d.numpy())
     pcu.save_mesh_v(os.path.join(args.input_base_path, 'aligned_pt_pruned.ply'), aligned_point_cloud_pruned.numpy())
     

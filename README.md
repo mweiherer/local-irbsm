@@ -20,6 +20,10 @@ Along with the inference code (sampling from our model and reconstructing point 
 Abstract:
 *We present a neural parametric 3D breast shape model and, based on this model, introduce a low-cost and accessible 3D surface reconstruction pipeline capable of recovering accurate breast geometry from a monocular RGB video. In contrast to widely used, commercially available yet prohibitively expensive 3D breast scanning solutions and existing low-cost alternatives, our method requires neither specialized hardware nor proprietary software and can be used with any device that is able to record RGB videos. The key building blocks of our pipeline are a state-of-the-art, off-the-shelf Structure-from-motion pipeline, paired with a parametric breast model for robust and metrically correct surface reconstruction. Our model, similarly to the recently proposed implicit Regensburg Breast Shape Model (iRBSM), leverages implicit neural representations to model breast shapes. However, unlike the iRBSM, which employs a single global neural signed distance function (SDF), our approach---inspired by recent state-of-the-art face models---decomposes the implicit breast domain into multiple smaller regions, each represented by a local neural SDF anchored at anatomical landmark positions. When incorporated into our surface reconstruction pipeline, the proposed model, dubbed liRBSM (short for localized iRBSM), significantly outperforms the iRBSM in terms of reconstruction quality, yielding more detailed surface reconstruction than its global counterpart. Overall, we find that the introduced pipeline is able to recover high-quality 3D breast geometry within an error margin of less than 2 mm. Our method is fast (requires less than six minutes), fully transparent and open-source, and---together with the model---publicly available.*
 
+## News
+- **[04/12/25]** Added alternative strategy to obtain metrical reconstructions based on landmark distance; Added method to colorize reconstructed mesh; Added option to remove invisible parts not seen from any camera (usually the back).
+- **[15/10/25]** Paper out on arXiv and release of v1.0.0 of our reconstruction software.
+
 ## Table of Contents
 - [Setup](#setup)
 - [Usage](#usage)
@@ -73,7 +77,12 @@ Optional arguments:
 - `--voxel_resolution`: The resolution of the voxel grid on which the implicit model is evaluated. Default: `256`.
 - `--chunk_size`: The size of the chunks the voxel grid should be split into. Default: `100_000`. If you have a small GPU with only little VRAM, lower this number.
 
-If you want a metrical (real-world scale) reconstruction, add `--metrical`.
+**Obtaining metrical reconstructions:** If your point cloud has arbitrary scale (because it originates from Structure-from-Motion, for example) and you want a metrical (real-world scale) reconstruction, add `--metrical`. 
+Please note that this returns an *approximate* metrical reconstruction, in which we simply scale the reconstructed mesh using th inverse average scaling factor obtained from our real-world scale training data when normalized to $[-1,1]^3$.
+This does not yield an exact metrical reconstruction on a per-instance level. 
+If you want an *exact* metrical reconstruction instead, you need to provide a known landmark distance measured on the real subject.
+We use the nipple-to-nipple distance, measured as Euclidean distance (*not* along the surface) and scaled in millimeters. 
+Once obtained, additionally add it via `--nipple_to_nipple_dist <dist-in-mm>`.
 
 #### Providing Landmarks 
 Whenever the orientation of the given point cloud differs significantly from the model's orientation, you should first *roughly* align both coordinate systems (this is necessary because our model is not invariant to rigid transformations).
@@ -111,10 +120,16 @@ This downloads the official GitHub repository into the `./extern` folder and ins
 ### Running the Pipeline
 To run our pipeline using default parameters, simply type:
 ```
-sh video_to_3d/run_pipeline.sh <path-to-video>
+bash video_to_3d/run_pipeline.sh <path-to-video>
 ```
-This will automatically (1) extract 30 frames from the input video, (2) run SfM on the extracted frames, (3) opens a window which prompts you to pick the six landmarks in a single image, (4) aligns the SfM-generated point cloud to our model's mean shape and prunes away points in the background, and finally (5) reconstructs a metrically correct surface mesh by fitting our model to the aligned and pruned point cloud.
-The whole pipeline runs in about six minutes on a single NVIDIA RTX A4000 with 20 GB of VRAM. 
+This will automatically (1) extract 30 frames from the input video, (2) run SfM on the extracted frames, (3) opens a window which prompts you to pick the six landmarks in a single image, (4) aligns the SfM-generated point cloud to our model's mean shape and prunes away points in the background, (5) reconstructs a surface mesh by fitting our model to the aligned and pruned point cloud, and optionally (6) colorizes the reconstructed mesh based on the extracted frames (this produces just per-vertex colors obtained from the multi-view image data; feel free to implement more advancent techniques that actually yield a properly textured mesh).
+The whole pipeline runs in about six minutes on a single NVIDIA RTX A4000 with 20 GB of VRAM.
+
+Optional arguments (see also [here](#fitting-the-model-to-a-point-cloud)):
+- Add `--metrical` to enable metrical surface reconstruction (this returns an *approximate* metrical reconstruction).
+- Additionally add `--nipple_to_nipple_dist <dist-in-mm>` if you want an exact metrical reconstruction.
+- Add `--colorize` to enable the final colorization step.
+- Additionally add `--remove_invisible` if you also want to remove invisible parts from the reconstructed mesh not seen from any camera (usually the back of the subject). **Please note that this option currently works only in combination with the colorize flag.**
 
 Important mouse and key controls for interactive landmark selection: 
 
@@ -183,21 +198,27 @@ Next, based on the previously annotated 2D landmarks, run
 ```
 python video_to_3d/align_and_prune.py <base-output-dir> <path-to-landmarks>
 ```
-
 Optional arguments:
-- `--pruning_dist_threshold`: Maximum distance beyond which points farther from our model's mean shape are removed. Default: `0.2` (about 12 cm in real-world scale). 
+- `--pruning_dist_threshold`: Maximum distance beyond which points farther from our model's mean shape are removed. Default: `0.2` (about 10 cm in real-world scale). 
 - `--use_depth_if_available`: Whether to use predicted dense depth maps for back-projecting 2D landmarks. Works only if `--predict_dense_depth` is set during SfM (see above). Default: `False`.
 - `--debug`: If set, outputs intermediate results. Default: `False`.
 
 ##### 5. Reconstruct Surface
-Finally, run
+Run
 ```
-python reconstruct.py <base-output-dir>/aligned_pt_pruned.ply --landmarks <base-output-dir>/aligned_landmarks_3d.ply --output_dir <base-output-dir> --metrical --latent_weight 0.1 --anchor_weight 0.1
+python reconstruct.py <base-output-dir>/aligned_pt_pruned.ply --landmarks <base-output-dir>/aligned_landmarks_3d.ply --output_dir <base-output-dir> --latent_weight 0.1 --anchor_weight 0.1
 ```
-to reconstruct a metrical surface mesh using the default parameters.
+to reconstruct a surface mesh using the default parameters.
 
 Optional arguments:
-See above.
+See [here](#fitting-the-model-to-a-point-cloud).
+
+##### 6. Optionallay Colorize Reconstructed Mesh
+If you finally wish to colorize your reconstructed mesh, type
+```
+python video_to_3d/colorize_mesh.py <base-output-dir>
+```
+If you also want to remove invisible parts from the reconstructed mesh not seen from any camera, add `--remove_invisible`. This usually removes the back of the subject, making the final mesh significantly smaller in terms of memory demands.
 </details>
 
 ## Training Our Model on Your Own Data

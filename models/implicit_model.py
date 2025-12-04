@@ -29,16 +29,14 @@ class ImplicitShapeModel:
         self.latent_std = ckpt['latent_std']
         self.latent_dim = self.latent_mean.shape[0] 
 
-        self.scale = 2.0 * 0.0017137007706792716
-
         self.model_landmarks = torch.load('artifacts/average_anchors.pt')
         print(f'Loaded {len(self.model_landmarks)} model landmarks from artifacts/average_anchors.pt.')
  
-    def _mesh_from_latent(self, latent_code, metrical, return_anchors):
+    def _mesh_from_latent(self, latent_code, scale, return_anchors):
         '''
         Reconstructs a triangle mesh from a given latent code.
         :param latent_code: The latent code as torch.Tensor of size [latent_dim]
-        :param metrical: If True, mesh is returned in metrical (real-world) scale
+        :param scale: Scaling factor applied to the reconstructed mesh (no scaling if not positive)
         :param return_anchors: Whether to return the anchors (if available)
         :return: The reconstructed triangle mesh as trimesh object and the anchors
             (if return_anchors enabled and available) as torch.Tensor of size [m, 3]
@@ -63,41 +61,41 @@ class ImplicitShapeModel:
         mesh = reconstruct_mesh(fx_volume[0, ...].cpu())
         trimesh_mesh = trimesh.Trimesh(vertices = mesh['vertices'], faces = mesh['faces'], vertex_normals = mesh['normals'])
 
-        if metrical:
-            trimesh_mesh.vertices /= self.scale
+        if scale > 0:
+            trimesh_mesh.vertices /= scale
 
         if return_anchors and anchors is not None:
             return trimesh_mesh, anchors.squeeze(dim = 0).detach().cpu()
         
         return trimesh_mesh
  
-    def sample(self, metrical = True, return_anchors = False):
+    def sample(self, scale = -1, return_anchors = False):
         '''
         Randomly samples from the shape model.
-        :param metrical: If True, sample is returned in metrical (real-world) scale
+        :param scale: Optional scaling factor applied to the sample (no scaling if not positive)
         :param return_anchors: Whether to return the anchors (if available) as torch.Tensor of size [m, 3]
         :return: The reconstructed triangle mesh as trimesh object
         '''
         random_latent = torch.randn(self.latent_mean.shape) * self.latent_std * 1.0 + self.latent_mean
-        return self._mesh_from_latent(random_latent, metrical, return_anchors)
+        return self._mesh_from_latent(random_latent, scale, return_anchors)
 
-    def mean_shape(self, metrical = True, return_anchors = False):
+    def mean_shape(self, scale = -1, return_anchors = False):
         '''
         Returns the mean shape of the shape model.
-        :param metrical: If True, mean shape is returned in metrical (real-world) scale
+        :param scale: Optional scaling factor applied to the mean shape (no scaling if not positive)
         :param return_anchors: Whether to return the anchors (if available) as torch.Tensor of size [m, 3]
         :return: The reconstructed triangle mesh as trimesh object
         '''
-        return self._mesh_from_latent(self.latent_mean, metrical, return_anchors)  
+        return self._mesh_from_latent(self.latent_mean, scale, return_anchors)  
 
-    def reconstruct(self, point_cloud, landmarks = None, metrical = True, num_iterations = 1_000, num_samples_per_iteration = 1_000,
+    def reconstruct(self, point_cloud, landmarks = None, scale = -1, num_iterations = 1_000, num_samples_per_iteration = 1_000,
                     latent_weight = 0.05, anchor_weight = -1, return_anchors = False, verbose = False):
         '''
         Reconstructs a surface mesh from a given point cloud using latent code optimization.
         :param point_cloud: The input point cloud as torch.Tensor of size [n, 3]
         :param landmarks: Optinal landmarks as torch.Tensor of size [m, 3] to rigidly align
             the point cloud with the model before reconstruction
-        :param metrical: If True, metrical (real-world scale) reconstruction is performed
+        :param scale: Optional scaling factor applied to the reconstructed mesh (no scaling if not positive)
         :param num_iterations: The number of optimization iterations
         :param num_samples_per_iteration: The number of points to subsample from the point cloud per iteration
         :param latent_weight: The weight of the latent regularization term
@@ -190,7 +188,7 @@ class ImplicitShapeModel:
 
         if verbose: print(f'Latent code optimization took {total_time:.2f} seconds.')
 
-        output = self._mesh_from_latent(latent_code.squeeze(), metrical, return_anchors)
+        output = self._mesh_from_latent(latent_code.squeeze(), scale, return_anchors)
 
         if isinstance(output, trimesh.Trimesh):
             mesh = output; anchors = None
@@ -199,13 +197,13 @@ class ImplicitShapeModel:
         if landmarks is not None:   
             if verbose: print('Undo rigid alignment and re-transform to original coordinate system.')  
 
-            if metrical: c = 1.0 # Don't rescale if metrical.
+            if scale > 0: c = 1.0 # Don't rescale if metrical.
             mesh.vertices = (((torch.from_numpy(mesh.vertices) - t) @ R) / c).numpy()
    
         if verbose: print('Re-transform mesh to original scale.')
-            
+
         # Re-transform mesh to original scale.
-        if not metrical: mesh.vertices /= (2.0 * pt_scale.numpy()) # Don't rescale if metrical.
+        if scale <= 0: mesh.vertices /= (2.0 * pt_scale.numpy()) # Don't rescale if metrical.
         mesh.vertices += pt_center.numpy()
 
         if return_anchors and anchors is not None:
@@ -232,6 +230,6 @@ class ImplicitShapeModel:
         for t in range(num_steps):
             alpha = t / (num_steps - 1)
             interpolated_lat = (1 - alpha) * start_lat + alpha * end_lat
-            meshes.append(self._mesh_from_latent(interpolated_lat, metrical = False, return_anchors = False))
+            meshes.append(self._mesh_from_latent(interpolated_lat, scale = -1, return_anchors = False))
        
         return meshes
