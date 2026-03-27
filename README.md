@@ -10,7 +10,7 @@ $^2$ OTH Regensburg\
 $^3$ University Hospital Regensburg\
 $^*$ equal contribution
 
-Official implementation of the paper "Learning Neural Parametric 3D Breast Shape Models for Metrical Surface Reconstruction From Monocular RGB Videos".
+Official implementation of the paper "Learning Neural Parametric 3D Breast Shape Models for Metrical Surface Reconstruction From Monocular RGB Videos", Journal of Machine Learning for Biomedical Imaging (MELBA).
 
 This repository contains code for the local implicit Regensburg Breast Shape Model (liRBSM).
 Along with the inference code (sampling from our model and reconstructing point clouds) and code that has been used to train our model, we also fully open-source the proposed 3D breast surface reconstruction pipeline.
@@ -18,9 +18,10 @@ Along with the inference code (sampling from our model and reconstructing point 
 **We also provide an easy-to-use graphical user interface for our 3D reconstruction pipeline that runs on macOS and Windows and (optionally) without a graphics card. Download it [here](https://rbsm.re-mic.de/local-implicit/)!**
 
 Abstract:
-*We present a neural parametric 3D breast shape model and, based on this model, introduce a low-cost and accessible 3D surface reconstruction pipeline capable of recovering accurate breast geometry from a monocular RGB video. In contrast to widely used, commercially available yet prohibitively expensive 3D breast scanning solutions and existing low-cost alternatives, our method requires neither specialized hardware nor proprietary software and can be used with any device that is able to record RGB videos. The key building blocks of our pipeline are a state-of-the-art, off-the-shelf Structure-from-motion pipeline, paired with a parametric breast model for robust and metrically correct surface reconstruction. Our model, similarly to the recently proposed implicit Regensburg Breast Shape Model (iRBSM), leverages implicit neural representations to model breast shapes. However, unlike the iRBSM, which employs a single global neural signed distance function (SDF), our approach---inspired by recent state-of-the-art face models---decomposes the implicit breast domain into multiple smaller regions, each represented by a local neural SDF anchored at anatomical landmark positions. When incorporated into our surface reconstruction pipeline, the proposed model, dubbed liRBSM (short for localized iRBSM), significantly outperforms the iRBSM in terms of reconstruction quality, yielding more detailed surface reconstruction than its global counterpart. Overall, we find that the introduced pipeline is able to recover high-quality 3D breast geometry within an error margin of less than 2 mm. Our method is fast (requires less than six minutes), fully transparent and open-source, and---together with the model---publicly available.*
+*We present a neural parametric 3D breast shape model and, based on this model, introduce a low-cost and accessible 3D surface reconstruction pipeline capable of recovering accurate breast geometry from a monocular RGB video. In contrast to widely used, commercially available yet expensive 3D breast scanning solutions and existing low-cost alternatives, our method requires neither specialized hardware nor proprietary software and can be used with any device that is able to record RGB videos. The key building blocks of our pipeline are a state-of-the-art, off-the-shelf Structure-from- Motion pipeline, paired with a parametric breast model for robust surface reconstruction. Our model, similarly to the recently proposed implicit Regensburg Breast Shape Model (iRBSM), leverages implicit neural representations to model breast shapes. However, unlike the iRBSM, which employs a single global neural Signed Distance Function (SDF), our approach—inspired by recent state-of-the-art face models—decomposes the implicit breast domain into multiple smaller regions, each represented by a local neural SDF anchored at anatomical landmark positions. When incorporated into our surface reconstruction pipeline, the proposed model, dubbed liRBSM (short for localized iRBSM), significantly outperforms the iRBSM in terms of reconstruction quality, yielding more detailed surface reconstruction than its global counterpart. Overall, we find that the introduced pipeline is able to recover high-quality and metrically correct 3D breast geometry within an error margin of less than 2 mm. Our method is fast (requires less than six minutes), fully transparent and open-source, and together with the model publicly available.*
 
 ## News
+- **[17/02/26]** Paper published in the Journal of Machine Learning for Biomedical Imaging (MELBA).
 - **[08/12/25]** Released v1.1.0 of our reconstruction software to reflect previous changes. Download it [here](https://rbsm.re-mic.de/local-implicit/)!
 - **[04/12/25]** Added alternative strategy to obtain metrical reconstructions based on landmark distance; Added method to colorize reconstructed mesh; Added option to remove invisible parts not seen from any camera (usually the back).
 - **[15/10/25]** Paper out on arXiv and release of v1.0.0 of our reconstruction software.
@@ -259,12 +260,12 @@ To log in to your account, simply type `wandb login` and follow the instructions
 ## Citation
 If you use the liRBSM or our 3D surface reconstruction pipeline, please cite
 ```bibtex
-@misc{weiherer2025lirbsm,
+@article{weiherer2026lirbsm,
     title={Learning Neural Parametric 3D Breast Shape Models for Metrical Surface Reconstruction From Monocular RGB Videos},
     author={Weiherer, Maximilian and von Riedheim, Antonia and Brébant, Vanessa and Egger, Bernhard and Palm, Christoph},
-    archivePrefix={arXiv},
-    eprint={2510.13540},
-    year={2025}
+    journal={Machine Learning for Biomedical Imaging},
+    volume={2026},
+    year={2026}
 }
 ```
 Also, in case you have any questions, feel free to contact Maximilian Weiherer, Bernhard Egger, or Christoph Palm.
