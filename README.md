@@ -265,6 +265,7 @@ If you use the liRBSM or our 3D surface reconstruction pipeline, please cite
     author={Weiherer, Maximilian and von Riedheim, Antonia and Brébant, Vanessa and Egger, Bernhard and Palm, Christoph},
     journal={Machine Learning for Biomedical Imaging},
     volume={2026},
+    pages={95--114},
     year={2026}
 }
 ```
